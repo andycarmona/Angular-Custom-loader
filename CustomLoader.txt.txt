@@ -1,0 +1,36 @@
+A custom loader example to import java file properties in angular 2
+Add this code on http-loader o create a new custom provider base on this:
+
+import "rxjs/add/operator/map";
+export var TranslateHttpLoader = (function () {
+    function TranslateHttpLoader(http, prefix, suffix) {
+        if (prefix === void 0) { prefix = "/assets/i18n/"; }
+        if (suffix === void 0) { suffix = ".json"; }
+        this.http = http;
+        this.prefix = prefix;
+        this.suffix = suffix;
+    }
+
+    function extractProperties(result) {
+     
+            let keyValuePairs = result._body.split("\n");
+            let properties = {}
+            for (let i = 0; i < keyValuePairs.length; i++) {
+                let keyValueArr = keyValuePairs[i].trim().split("=");
+                let key = keyValueArr[0];
+                let value = keyValueArr[1];
+                properties[key] = value
+            }
+            return properties;
+    }
+    /**
+     * Gets the translations from the server
+     * @param lang
+     * @returns {any}
+     */
+    TranslateHttpLoader.prototype.getTranslation = function (lang) {
+        return this.http.get("" + this.prefix + lang + this.suffix)
+            .map(function (res) { return extractProperties(res); });
+    };
+    return TranslateHttpLoader;
+}());
